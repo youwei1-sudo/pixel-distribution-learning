@@ -11,6 +11,8 @@ from utils import *
 from net import *
 
 # import matplotlib . pyplot as plt
+
+# Please change your root here
 data_root = "../KITTI_MOD_fixed"
 
 imgs = load_flow_images(root=data_root, mode="training")
