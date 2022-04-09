@@ -6,7 +6,7 @@ import torch
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(3, 64, 5, 2)
+        self.conv1 = nn.Conv2d(6, 64, 5, 2)
         self.batch_norm1 = nn.BatchNorm2d(64)
         self.conv2 = nn.Conv2d(64, 128, 5, 2)
         self.batch_norm2 = nn.BatchNorm2d(128)
@@ -38,7 +38,7 @@ class Net(nn.Module):
         return output
 
 
-input = torch.randn(size=(1, 3, 15, 15))
+input = torch.randn(size=(1, 6, 15, 15))
 net = Net()
 out = net.forward(input)
 print(out.shape)
