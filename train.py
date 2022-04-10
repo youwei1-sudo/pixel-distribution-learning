@@ -5,7 +5,6 @@ import torch.nn.functional as F
 from torch import nn
 import numpy as np
 
-import utils
 from dataloader import *
 from utils import *
 from net import *
@@ -17,14 +16,14 @@ data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
 model_path = "./checkpoint/ckpt.pth"
 
 imgs = load_flow_images(root=data_root, mode="training")
-train_sets = imgs[190: 195]
-validate_sets = imgs[200: 202]
+train_sets = imgs[190: 193]
+validate_sets = imgs[200: 201]
 # show_img(validate_sets[0])
 print(train_sets.shape)
 
 masks = load_masks(root=data_root, mode="training")
-train_masks = masks[190: 195]
-validate_masks = masks[200: 202]
+train_masks = masks[190: 193]
+validate_masks = masks[200: 201]
 # show_img(validate_masks[0])
 print(train_masks.shape)
 
@@ -108,7 +107,7 @@ for epoch in range(epochs):
             np_random_select_pixel_list_large = np.asarray(random_select_pixel_list_large)
 
             # stack two list in channels dim, (1000,15,15,6)
-            np_random_select_pixel = np.concatenate((np_random_select_pixel_list, np_random_select_pixel_list), axis=3)
+            np_random_select_pixel = np.concatenate((np_random_select_pixel_list, np_random_select_pixel_list_large), axis=3)
 
             # reshape
             np_random_select_pixel = np_random_select_pixel.transpose(0, 3, 1, 2)
@@ -133,7 +132,6 @@ for epoch in range(epochs):
         print("finish train image %d" % i)
         # print("value:", val, "patch loss:", loss)
     print("epoch:", epoch, " loss:", total_loss)
-    print("begin to validate")
     # TODO: set validate condition
     if epoch % 1 == 0:
         pred_list = []
@@ -190,7 +188,7 @@ for epoch in range(epochs):
                     np_random_select_pixel_list_large = np.asarray(random_select_pixel_list_large)
 
                     # stack two list in channels dim, (1000,15,15,6)
-                    np_random_select_pixel = np.concatenate((np_random_select_pixel_list, np_random_select_pixel_list),
+                    np_random_select_pixel = np.concatenate((np_random_select_pixel_list, np_random_select_pixel_list_large),
                                                             axis=3)
 
                     # reshape
@@ -223,5 +221,5 @@ for epoch in range(epochs):
         print("epoch:", epoch, "avg Fm: ", current_fscore)
         if best_fscore < current_fscore:
             best_fscore = current_fscore
-            torch.save(net.state_dict(), model_path)
+            torch.save(net.to(device).state_dict(), model_path)
             print("save the model in epoch %d" % epoch)
