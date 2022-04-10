@@ -42,7 +42,6 @@ class Net(nn.Module):
         output = F.log_softmax(x, dim=1)
         return output
 
-
 input = torch.randn(size=(1, 6, 15, 15))
 net = Net()
 out = net.forward(input)
