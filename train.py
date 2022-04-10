@@ -190,7 +190,7 @@ for epoch in range(epochs):
                     np_random_select_pixel_list_large = np.asarray(random_select_pixel_list_large)
 
                     # stack two list in channels dim, (1000,15,15,6)
-                    np_random_select_pixel = np.concatenate((np_random_select_pixel_list, np_random_select_pixel_list),
+                    np_random_select_pixel = np.concatenate((np_random_select_pixel_list, np_random_select_pixel_list_large),
                                                             axis=3)
 
                     # reshape
