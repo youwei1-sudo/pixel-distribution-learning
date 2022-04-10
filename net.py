@@ -21,13 +21,13 @@ class Net(nn.Module):
         # Pass data through conv1
         x = self.conv1(x)
         x = self.batch_norm1(x)
-        x = F.relu(x)
+        # x = F.relu(x)
         # x = F.max_pool2d(x, kernel_size=2, stride=2)
         # Use the rectified-linear activation function over x
 
         x = self.conv2(x)
         x = self.batch_norm2(x)
-        x = F.relu(x)
+        # x = F.relu(x)
         # x = F.max_pool2d(x, kernel_size=2, stride=2)
         x = self.conv3(x)
         x = F.relu(x)

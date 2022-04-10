@@ -38,7 +38,7 @@ batch_size = 1000
 patch_size = 25
 patch_size_larger = 37
 select_pixels_size = 15
-net = Net2().to(device)
+net = Net().to(device)
 
 # TODO: test Adam or SGD
 # optimizer = torch.optim.Adam(net.parameters(), lr=1e-3)
