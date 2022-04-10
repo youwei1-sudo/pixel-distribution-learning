@@ -1,0 +1,3 @@
+1. stack the orginal image with the optical flow image; 
+2. pixle distributed learning: subtract the orginal pixle, keep the orginal pixle information
+
