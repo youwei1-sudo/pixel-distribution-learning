@@ -35,16 +35,14 @@ class Kitti_DataParser(object):
         """
         image_dir = os.path.join(data_root, mode, "mask")
         label_path = sorted(glob.glob(os.path.join(image_dir, '*.png')))
-        print("image_dir",image_dir)
-        # print("label_pa", label_path,"\n")
         return label_path
 
 
-# if __name__ == '__main__':
-#     # dataparser = SintelDataParser(data_root="/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/MPI-Sintel-complete",
-#     #                               dtype="clean")
-#     # print(len(dataparser.data_path_list))
-#     dataparser = Kitti_DataParser(data_root="/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed",
-#                                   mode="training")
-#     # res = dataparser.get_flow_path(data_root="/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/data_semantics", mode="training")
-#     print(dataparser.data_path_list)
+if __name__ == '__main__':
+    # dataparser = SintelDataParser(data_root="/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/MPI-Sintel-complete",
+    #                               dtype="clean")
+    # print(len(dataparser.data_path_list))
+    dataparser = Kitti_DataParser(data_root="/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed",
+                                  mode="training")
+    # res = dataparser.get_flow_path(data_root="/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/data_semantics", mode="training")
+    print(dataparser.data_path_list)
