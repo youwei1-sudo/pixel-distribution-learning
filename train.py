@@ -12,13 +12,14 @@ from net import *
 # import matplotlib . pyplot as plt
 
 # Please change your root here
-data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
+data_root = "../KITTI_MOD_fixed"
+#data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
 model_path = "./checkpoint/ckpt.pth"
 
 imgs = load_flow_images(root=data_root, mode="training")
 train_sets = imgs[185: 200]
 validate_sets = imgs[200: 203]
-# show_img(validate_sets[0])
+show_img(train_sets[0])
 print(train_sets.shape)
 
 masks = load_masks(root=data_root, mode="training")
@@ -30,7 +31,7 @@ print(train_masks.shape)
 _, row, column, channel = imgs.shape
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print('Training on GPU: {}'.format(torch.cuda.get_device_name(0)))
+#print('Training on GPU: {}'.format(torch.cuda.get_device_name(0)))
 
 epochs = 4
 batch_size = 2000
@@ -79,6 +80,8 @@ for epoch in range(epochs):
 
             # randomize the patch
             np_random_patch = randomize_patch_list(select_patch)
+            
+            break
             np_random_patch_large = randomize_patch_list(select_patch_large)
             # np_random_patch = np.asarray(random_patch_list).transpose(0, 2, 3, 1)
             # np_random_patch_large = np.asarray(random_patch_large_list).transpose(0, 2, 3, 1)

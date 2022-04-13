@@ -4,10 +4,12 @@ from utils import *
 from dataloader import *
 from net import *
 
-data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
+data_root = "../KITTI_MOD_fixed"
+#data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
 
 imgs = load_flow_images(root=data_root, mode="testing")
 imgs = imgs[100: 105]
+show_img(imgs[0])
 masks = load_masks(root=data_root, mode="testing")
 masks = masks[100: 105]
 batch_size = 1000
@@ -24,9 +26,13 @@ if not os.path.exists(test_dir):
 
 def test():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print('Training on GPU: {}'.format(torch.cuda.get_device_name(0)))
+    #print('Training on GPU: {}'.format(torch.cuda.get_device_name(0)))
     model = Net().to(device)
-    checkpoint = torch.load('./checkpoint/ckpt.pth')
+    #checkpoint = torch.load('./checkpoint/ckpt.pth')
+    
+    #CPU test
+    checkpoint = torch.load('./checkpoint/ckpt.pth',map_location=torch.device('cpu'))
+    
     model.load_state_dict(checkpoint)
     model.eval()
     pred_list = []

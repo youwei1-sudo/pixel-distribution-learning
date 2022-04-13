@@ -82,13 +82,37 @@ def evaluation_entry(fgim, gtim):
     return TP, FP, TN, FN
 
 
-
+def np_randomize_patch(patch):
+    
+    
+    # patch shape = (channel, size, size)
+    channel, patch_height, patch_width = patch.shape
+    
+    # patch = np.reshape(patch, newshape=(patch_height
+    #                                                 ,patch_width, channel))
+    # print(patch.shape)
+    # print("\n new shape ",patch)
+    
+    
+    # random generator
+    rng = np.random.default_rng()
+    
+    rng.shuffle(patch, axis=1)
+    #print("\n row shuffle",patch)
+    rng.shuffle(patch, axis=2)
+    #print("\n col shuffle",patch)
+    
+    
+    
+  
+    return patch
 
 def randomize_patch(patch):
     # patch shape = (channel, size, size)
     channel, patch_height, patch_width = patch.shape
     random_idx = np.random.randint(0, patch_width*patch_height, patch_width * patch_height)
     random_patch = np.zeros(shape=(patch_height * patch_width, channel))
+    
     for c in range(channel):
         random_patch_flatten = np.ndarray.flatten(patch[c])
         random_patch_c = np.zeros(shape=(patch_height * patch_width, ))
@@ -103,7 +127,7 @@ def randomize_patch_list(select_patch):
     """_summary_
         randomize the  patch list
     Args:
-        select_patch (_type_): patch list
+        select_patch (_type_): patch list, with patch shape (c, row, col)
     
     Returns:
         numpy: np_patch_list
@@ -178,10 +202,17 @@ def show_img(img, flattened = False, ori_shape = (370, 1200)):
 
 
 if __name__ == '__main__':
-    # img = cv2.imread("./2011_09_26_drive_0001_sync_0000000000.png")
-    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.imread("/Users/david/Desktop/cmput414/project/pixel-distribution-learning/2011_09_26_drive_0001_sync_0000000000.png")
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = np.random.rand(3, 25, 25)*255
     img = img.astype(np.uint8)
-    # random_patch = randomize_patch(img)
-    # print(img.shape)
-    patch = patch_image(img, 5)
+    
+    
+    #arr = np.array([[[1,1],[3,3],[5,5]],[[6,6],[2,2],[4,4]]])
+    img = img[:,:2,:2]
+    print(img)
+    random_patch = np_randomize_patch(img)
+    #print(arr)
+    print(img.shape)
+    
+    #patch = patch_image(img, 5)
