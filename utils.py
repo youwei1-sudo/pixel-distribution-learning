@@ -55,8 +55,6 @@ def patch_image(image, patch_size):
     return np_patch_list
 
 
-
-
 def evaluation_entry(fgim, gtim):
     """_summary_
     Args:
@@ -114,9 +112,8 @@ def randomize_patch_list(select_patch):
     for patch in select_patch:
         random_patch = randomize_patch(patch)
         random_patch_list.append(random_patch)
+
     np_random_patch = np.asarray(random_patch_list).transpose(0, 2, 3, 1)
-    
-    
     return np_random_patch
 
 
