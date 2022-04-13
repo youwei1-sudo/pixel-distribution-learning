@@ -17,9 +17,10 @@ data_root = "../KITTI_MOD_fixed"
 model_path = "./checkpoint/ckpt.pth"
 
 imgs = load_flow_images(root=data_root, mode="training")
+print(imgs.shape)
 train_sets = imgs[185: 200]
 validate_sets = imgs[200: 203]
-show_img(train_sets[0])
+#show_img(train_sets[0])
 print(train_sets.shape)
 
 masks = load_masks(root=data_root, mode="training")
@@ -79,12 +80,11 @@ for epoch in range(epochs):
             mask_patch = mask_image[val * batch_size: (val + 1) * batch_size]
 
             # randomize the patch
-            np_random_patch = randomize_patch_list(select_patch)
+            # np_random_patch = randomize_patch_list(select_patch)
+            # np_random_patch_large = randomize_patch_list(select_patch_large)
             
-            break
-            np_random_patch_large = randomize_patch_list(select_patch_large)
-            # np_random_patch = np.asarray(random_patch_list).transpose(0, 2, 3, 1)
-            # np_random_patch_large = np.asarray(random_patch_large_list).transpose(0, 2, 3, 1)
+            np_random_patch = select_patch
+            np_random_patch_large =select_patch_large
 
             # select batch size patches to train
             select_pixels = select_batch_size_patch(np_random_patch, patch_size, channel, batch_size,

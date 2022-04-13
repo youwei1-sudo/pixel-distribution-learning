@@ -82,32 +82,42 @@ def evaluation_entry(fgim, gtim):
     return TP, FP, TN, FN
 
 
-def np_randomize_patch(patch):
-    
+def bad_randomize_patch_on_all_channels(patch):
+    """numpy shuffle
+        shuffle on all channles values  + original patch
+        result bad
+    Args:
+        patch (_type_): _description_
+
+    Returns:
+        np array: randomized patch
+    """
     
     # patch shape = (channel, size, size)
     channel, patch_height, patch_width = patch.shape
     
-    # patch = np.reshape(patch, newshape=(patch_height
-    #                                                 ,patch_width, channel))
-    # print(patch.shape)
-    # print("\n new shape ",patch)
+    # patch = np.transpose(patch,(1,0,2))
+    # rndImg2 = np.reshape(patch, (patch_height* patch_width ,channel))
+    patch_cp = patch.copy()
     
-    
+
     # random generator
     rng = np.random.default_rng()
-    
     rng.shuffle(patch, axis=1)
-    #print("\n row shuffle",patch)
     rng.shuffle(patch, axis=2)
-    #print("\n col shuffle",patch)
-    
-    
-    
-  
-    return patch
+
+
+    return patch + patch_cp
 
 def randomize_patch(patch):
+    """ randomize shuffle on all pixels indexs  
+        result good but slow
+    Args:
+        patch (image): 
+
+    Returns:
+        np array: randomized patch
+    """
     # patch shape = (channel, size, size)
     channel, patch_height, patch_width = patch.shape
     random_idx = np.random.randint(0, patch_width*patch_height, patch_width * patch_height)
@@ -134,7 +144,8 @@ def randomize_patch_list(select_patch):
     """
     random_patch_list = []
     for patch in select_patch:
-        random_patch = np_randomize_patch(patch)
+        random_patch = randomize_patch(patch)
+        #print(random_patch.shape)
         random_patch_list.append(random_patch)
 
     np_random_patch = np.asarray(random_patch_list).transpose(0, 2, 3, 1)
