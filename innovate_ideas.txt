@@ -2,3 +2,8 @@
 2. pixle distributed learning: subtract the orginal pixle, keep the orginal pixle information
 3. motion net: wide and shallow : 
   refference : https://arxiv.org/abs/2010.15327; Do Wide and Deep Networks Learn the Same Things? Uncovering How Neural Network Representations Vary with Width and Depth
+
+4. patch ramdomize :  
+      shuffle on pixel index  small batch (10 imges) : slow , with 40 fm sorce
+      shuffle on all channles values  + original patch == failed with 0.04 fm score 
+5. ramndom twice with best patch ramdomize method > ramndom once with best patch ramdomize method

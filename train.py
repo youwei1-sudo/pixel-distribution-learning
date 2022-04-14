@@ -18,13 +18,13 @@ model_path = "./checkpoint/ckpt.pth"
 
 imgs = load_flow_images(root=data_root, mode="training")
 print(imgs.shape)
-train_sets = imgs[185: 200]
+train_sets = imgs[195: 200]
 validate_sets = imgs[200: 203]
 #show_img(train_sets[0])
 print(train_sets.shape)
 
 masks = load_masks(root=data_root, mode="training")
-train_masks = masks[185: 200]
+train_masks = masks[195: 200]
 validate_masks = masks[200: 203]
 # show_img(validate_masks[0])
 print(train_masks.shape)
@@ -34,7 +34,7 @@ _, row, column, channel = imgs.shape
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #print('Training on GPU: {}'.format(torch.cuda.get_device_name(0)))
 
-epochs = 4
+epochs = 10
 batch_size = 2000
 patch_size = 25
 patch_size_larger = 37
@@ -80,11 +80,11 @@ for epoch in range(epochs):
             mask_patch = mask_image[val * batch_size: (val + 1) * batch_size]
 
             # randomize the patch
-            # np_random_patch = randomize_patch_list(select_patch)
-            # np_random_patch_large = randomize_patch_list(select_patch_large)
+            np_random_patch = randomize_patch_list(select_patch)
+            np_random_patch_large = randomize_patch_list(select_patch_large)
             
-            np_random_patch = select_patch
-            np_random_patch_large =select_patch_large
+            # np_random_patch = select_patch
+            # np_random_patch_large =select_patch_large
 
             # select batch size patches to train
             select_pixels = select_batch_size_patch(np_random_patch, patch_size, channel, batch_size,

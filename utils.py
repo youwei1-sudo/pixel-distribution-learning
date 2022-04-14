@@ -3,6 +3,8 @@ import numpy as np
 import cv2
 # import png
 import matplotlib . pyplot as plt
+import time
+
 
 
 
@@ -119,20 +121,70 @@ def randomize_patch(patch):
         np array: randomized patch
     """
     # patch shape = (channel, size, size)
+    
+
+    
+    
     channel, patch_height, patch_width = patch.shape
     random_idx = np.random.randint(0, patch_width*patch_height, patch_width * patch_height)
     random_patch = np.zeros(shape=(patch_height * patch_width, channel))
     
     for c in range(channel):
+     
         random_patch_flatten = np.ndarray.flatten(patch[c])
         random_patch_c = np.zeros(shape=(patch_height * patch_width, ))
+        
+
         for i in range(len(random_idx)):
             random_patch_c[i] = random_patch_flatten[random_idx[i]]
+            
+
         random_patch[..., c] = random_patch_c
     random_patch_reshape = np.reshape(random_patch, newshape=(patch_height
                                                               ,patch_width, channel)).transpose(2, 0, 1)
     return random_patch_reshape
 
+def np_randomize_patch(patch):
+    """ randomize shuffle on all pixels indexs  
+        result good but slow
+    Args:
+        patch (image): 
+
+    Returns:
+        np array: randomized patch
+    """
+    # patch shape = (channel, size, size)
+    
+
+    
+    
+    channel, patch_height, patch_width = patch.shape
+    random_idx = np.random.randint(0, patch_width*patch_height, patch_width * patch_height)
+    
+    
+    random_patch = np.zeros(shape=(patch_height * patch_width, channel))
+    
+    for c in range(channel):
+     
+        random_patch_flatten = np.ndarray.flatten(patch[c])
+        #random_patch_c1 = np.zeros(shape=(patch_height * patch_width, ))
+        
+        random_patch_c = np.take(random_patch_flatten, random_idx)
+        
+        
+        # for i in range(len(random_idx)):
+        #     random_patch_c1[i] = random_patch_flatten[random_idx[i]]
+        
+        # if (np.array_equal(random_patch_c,random_patch_c1) ):
+        #     print("i am equal")
+        # else:
+        #     print("rc",random_patch_c1)
+        #     print ("rc",random_patch_c)
+        
+        random_patch[..., c] = random_patch_c
+    random_patch_reshape = np.reshape(random_patch, newshape=(patch_height
+                                                              ,patch_width, channel)).transpose(2, 0, 1)
+    return random_patch_reshape
 def randomize_patch_list(select_patch):
     """_summary_
         randomize the  patch list
@@ -144,7 +196,7 @@ def randomize_patch_list(select_patch):
     """
     random_patch_list = []
     for patch in select_patch:
-        random_patch = randomize_patch(patch)
+        random_patch = np_randomize_patch(patch)
         #print(random_patch.shape)
         random_patch_list.append(random_patch)
 
