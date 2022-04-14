@@ -18,14 +18,14 @@ model_path = "./checkpoint/ckpt.pth"
 
 imgs = load_flow_images(root=data_root, mode="training")
 print(imgs.shape)
-train_sets = imgs[180: 200]
-validate_sets = imgs[200: 205]
+train_sets = imgs[183: 296]
+validate_sets = imgs[183: 296]
 #show_img(train_sets[0])
 print(train_sets.shape)
 
 masks = load_masks(root=data_root, mode="training")
-train_masks = masks[180: 200]
-validate_masks = masks[200: 205]
+train_masks = masks[183: 296]
+validate_masks = masks[183: 296]
 # show_img(validate_masks[0])
 print(train_masks.shape)
 
@@ -38,14 +38,14 @@ epochs = 10
 batch_size = 2000
 patch_size = 25
 patch_size_larger = 37
-select_pixels_size = 15
+select_pixels_size = 16
 net = Net().to(device)
 
 # TODO: test Adam or SGD
-optimizer = torch.optim.Adam(net.parameters(), lr=1e-3)
+optimizer = torch.optim.Adam(net.parameters(), lr=1e-4)
 # optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-
-criterion = torch.nn.NLLLoss().to(device)
+class_weights = torch.FloatTensor([0.5, 0.5]).to(device)
+criterion = torch.nn.NLLLoss(class_weights, reduction="mean").to(device)
 
 best_fscore = 0
 

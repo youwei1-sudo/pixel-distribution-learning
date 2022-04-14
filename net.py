@@ -6,12 +6,11 @@ import torch
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(6, 256, 2, 2)
+        self.conv1 = nn.Conv2d(6, 256, 4, 2)
        # self.batch_norm1 = nn.BatchNorm2d(64)
-        self.conv2 = nn.Conv2d(256, 512, 2, 2)
+        self.conv2 = nn.Conv2d(256, 512, 4, 2)
         # self.batch_norm2 = nn.BatchNorm2d(128)
         self.conv3 = nn.Conv2d(512, 512, 2, 2)
-        # self.batch_norm3 = nn.BatchNorm2d(256)
 
         self.fc1 = nn.Linear(512, 512)
         # self.fc3 = nn.Linear(128, 64)
@@ -43,7 +42,7 @@ class Net(nn.Module):
         output = F.log_softmax(x, dim=1)
         return output
 
-input = torch.randn(size=(1, 6, 15, 15))
+input = torch.randn(size=(1, 6, 16, 16))
 net = Net()
 out = net.forward(input)
 print(out.shape)

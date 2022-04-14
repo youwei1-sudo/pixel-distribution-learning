@@ -36,7 +36,7 @@ def patch_image(image, patch_size):
                 img_center.fill(pixel_val)
                 
                 # make sure wont , subtract by itself; expierenmtal 
-                img_center[patch_m_size][patch_m_size] = 0
+                # img_center[patch_m_size][patch_m_size] = 0
                 x_real = x + patch_m_size
                 y_real = y + patch_m_size
 
