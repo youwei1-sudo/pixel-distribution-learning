@@ -84,7 +84,7 @@ def evaluation_entry(fgim, gtim):
     return TP, FP, TN, FN
 
 
-def bad_randomize_patch_on_all_channels(patch):
+def randomize_patch_V1_on_all_channels(patch):
     """numpy shuffle
         shuffle on all channles values  + original patch
         result bad
@@ -111,7 +111,7 @@ def bad_randomize_patch_on_all_channels(patch):
 
     return patch + patch_cp
 
-def randomize_patch(patch):
+def randomize_patch_V0(patch):
     """ randomize shuffle on all pixels indexs  
         result good but slow
     Args:
@@ -146,7 +146,7 @@ def randomize_patch(patch):
 
 def np_randomize_patch(patch):
     """ randomize shuffle on all pixels indexs  
-        result good but slow
+        result good 
     Args:
         patch (image): 
 
