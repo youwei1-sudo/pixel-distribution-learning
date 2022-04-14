@@ -12,20 +12,20 @@ from net import *
 # import matplotlib . pyplot as plt
 
 # Please change your root here
-# data_root = "../KITTI_MOD_fixed"
-data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
+data_root = "../KITTI_MOD_fixed"
+#data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
 model_path = "./checkpoint/ckpt.pth"
 
 imgs = load_flow_images(root=data_root, mode="training")
 print(imgs.shape)
-train_sets = imgs[180: 200]
-validate_sets = imgs[200: 205]
+train_sets = imgs[195: 200]
+validate_sets = imgs[200: 203]
 #show_img(train_sets[0])
 print(train_sets.shape)
 
 masks = load_masks(root=data_root, mode="training")
-train_masks = masks[180: 200]
-validate_masks = masks[200: 205]
+train_masks = masks[195: 200]
+validate_masks = masks[200: 203]
 # show_img(validate_masks[0])
 print(train_masks.shape)
 
@@ -38,18 +38,21 @@ epochs = 10
 batch_size = 2000
 patch_size = 25
 patch_size_larger = 37
+
+patch_sizes_list = [patch_size, patch_size_larger]
+# divisble by kernel size
 select_pixels_size = 15
 net = Net().to(device)
 
 # TODO: test Adam or SGD
-optimizer = torch.optim.Adam(net.parameters(), lr=1e-3)
+optimizer = torch.optim.Adam(net.parameters(), lr=1e-4)
 # optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
 criterion = torch.nn.NLLLoss().to(device)
 
 best_fscore = 0
 
-validate_dir = os.path.join(os.getcwd(), "validate_img_2")
+validate_dir = os.path.join(os.getcwd(), "validate_img")
 if not os.path.exists(validate_dir):
     os.makedirs(validate_dir)
 
@@ -59,61 +62,22 @@ if not os.path.exists("checkpoint"):
 for epoch in range(epochs):
     total_loss = 0
     for i in range(len(train_sets)):
-        # for i in range(1):
-
-        flow_patch_list = patch_image(train_sets[i], patch_size)
-        # print("patch 1 ok")
-        flow_patch_list_large = patch_image(train_sets[i], patch_size_larger)
-        # print("patch 2 ok")
+     
+        flow_patch_lists = flow_patch_list_generator(patch_sizes_list, train_sets[i])
+    
         mask_image = train_masks[i].reshape(row * column) / 255
 
         # generate patch for each pixel in an image
-        value = round(flow_patch_list.shape[0] / batch_size + 0.5)
+        value = round(flow_patch_lists[0].shape[0] / batch_size + 0.5)
 
         # calculate how many batches to iterate
         for val in range(value):
-
-            select_patch = flow_patch_list[val * batch_size: (val + 1) * batch_size]
-            select_patch_large = flow_patch_list_large[val * batch_size: (val + 1) * batch_size]
-
+            
             # pixel corresponding mask value
             mask_patch = mask_image[val * batch_size: (val + 1) * batch_size]
-
-            # randomize the patch
-            np_random_patch = randomize_patch_list(select_patch)
-            np_random_patch_large = randomize_patch_list(select_patch_large)
             
-            # np_random_patch = select_patch
-            # np_random_patch_large =select_patch_large
-
-            # select batch size patches to train
-            select_pixels = select_batch_size_patch(np_random_patch, patch_size, channel, batch_size,
-                                                    select_pixels_size)
-            select_pixels_large = select_batch_size_patch(np_random_patch_large, patch_size_larger, channel, batch_size,
-                                                          select_pixels_size)
-
-            # select first L pixels
-            # shape of batch_size, channel, select_pixels_size, select_pixels_size
-            select_pixels_patch = np.reshape(select_pixels,
-                                             newshape=(
-                                             batch_size, select_pixels_size, select_pixels_size, channel)).transpose(0, 3, 1, 2)
-
-            select_pixels_large_patch = np.reshape(select_pixels_large,
-                                                   newshape=(batch_size, select_pixels_size, select_pixels_size,
-                                                             channel)).transpose(0, 3, 1,
-                                                                          2)
-
-            np_random_select_pixel_list = randomize_patch_list(select_pixels_patch)
-            np_random_select_pixel_list_large = randomize_patch_list(select_pixels_large_patch)
-
-            # np_random_select_pixel_list = np.asarray(random_select_pixel_list)
-            # np_random_select_pixel_list_large = np.asarray(random_select_pixel_list_large)
-
-            # stack two list in channels dim, (1000,15,15,6)
-            np_random_select_pixel = np.concatenate((np_random_select_pixel_list, np_random_select_pixel_list_large), axis=3)
-
             # reshape
-            np_random_select_pixel = np_random_select_pixel.transpose(0, 3, 1, 2)
+            np_random_select_pixel = network_inputGenerate(val, batch_size,channel, select_pixels_size,flow_patch_lists, patch_sizes_list)
             # print ("shape of np_random_select_pixel",np_random_select_pixel.shape)
 
             # randomize again to avoid overfitting
@@ -208,8 +172,7 @@ for epoch in range(epochs):
                     pred_list += list(batch_pred_labels)
                 pred_image = np.asarray(pred_list)
                 prefgim = pred_image.reshape(row, column).astype(np.uint8) * 255
-                if epoch % 3 == 0:
-                    cv2.imwrite(os.path.join(validate_dir, "epoch%d_%d.png") % (epoch, i), prefgim)
+                cv2.imwrite(os.path.join(validate_dir, "epoch%d_%d.png") % (epoch, i), prefgim)
 
                 TP, FP, TN, FN = evaluation_entry(prefgim, mask_image)
                 pred_list = []
