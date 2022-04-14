@@ -23,7 +23,7 @@ def patch_image(image, patch_size):
     patch_m_size = patch_size // 2
     
     # pad the whole image, respect to the edge, ex left most will connect to right most;
-    image_pad = cv2.copyMakeBorder(image, patch_m_size, patch_m_size, patch_m_size, patch_m_size, cv2.BORDER_REFLECT, value=[0, 0, 0])
+    image_pad = cv2.copyMakeBorder(image, patch_m_size, patch_m_size, patch_m_size, patch_m_size, cv2.BORDER_REFLECT)
 
     assert(len(image.shape) == 3)
     
@@ -155,9 +155,6 @@ def np_randomize_patch(patch):
     """
     # patch shape = (channel, size, size)
     
-
-    
-    
     channel, patch_height, patch_width = patch.shape
     random_idx = np.random.randint(0, patch_width*patch_height, patch_width * patch_height)
     
@@ -185,6 +182,8 @@ def np_randomize_patch(patch):
     random_patch_reshape = np.reshape(random_patch, newshape=(patch_height
                                                               ,patch_width, channel)).transpose(2, 0, 1)
     return random_patch_reshape
+
+
 def randomize_patch_list(select_patch):
     """_summary_
         randomize the  patch list

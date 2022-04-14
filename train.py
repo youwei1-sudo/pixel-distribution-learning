@@ -12,20 +12,20 @@ from net import *
 # import matplotlib . pyplot as plt
 
 # Please change your root here
-data_root = "../KITTI_MOD_fixed"
-#data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
+# data_root = "../KITTI_MOD_fixed"
+data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
 model_path = "./checkpoint/ckpt.pth"
 
 imgs = load_flow_images(root=data_root, mode="training")
 print(imgs.shape)
-train_sets = imgs[195: 200]
-validate_sets = imgs[200: 203]
+train_sets = imgs[180: 200]
+validate_sets = imgs[200: 205]
 #show_img(train_sets[0])
 print(train_sets.shape)
 
 masks = load_masks(root=data_root, mode="training")
-train_masks = masks[195: 200]
-validate_masks = masks[200: 203]
+train_masks = masks[180: 200]
+validate_masks = masks[200: 205]
 # show_img(validate_masks[0])
 print(train_masks.shape)
 
@@ -42,14 +42,14 @@ select_pixels_size = 15
 net = Net().to(device)
 
 # TODO: test Adam or SGD
-# optimizer = torch.optim.Adam(net.parameters(), lr=1e-3)
-optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+optimizer = torch.optim.Adam(net.parameters(), lr=1e-3)
+# optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
 criterion = torch.nn.NLLLoss().to(device)
 
 best_fscore = 0
 
-validate_dir = os.path.join(os.getcwd(), "validate_img")
+validate_dir = os.path.join(os.getcwd(), "validate_img_2")
 if not os.path.exists(validate_dir):
     os.makedirs(validate_dir)
 
@@ -208,7 +208,8 @@ for epoch in range(epochs):
                     pred_list += list(batch_pred_labels)
                 pred_image = np.asarray(pred_list)
                 prefgim = pred_image.reshape(row, column).astype(np.uint8) * 255
-                cv2.imwrite(os.path.join(validate_dir, "epoch%d_%d.png") % (epoch, i), prefgim)
+                if epoch % 3 == 0:
+                    cv2.imwrite(os.path.join(validate_dir, "epoch%d_%d.png") % (epoch, i), prefgim)
 
                 TP, FP, TN, FN = evaluation_entry(prefgim, mask_image)
                 pred_list = []
