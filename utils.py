@@ -34,7 +34,7 @@ def patch_image(image, patch_size):
                 img_center = np.zeros(shape=(patch_size, patch_size))
                 pixel_val = image[x][y][c]
                 img_center.fill(pixel_val)
-                
+                # img_center[patch_m_size][patch_m_size] = 0
                 # make sure wont , subtract by itself; expierenmtal 
                 # img_center[patch_m_size][patch_m_size] = 0
                 x_real = x + patch_m_size
@@ -56,6 +56,22 @@ def patch_image(image, patch_size):
 
     return np_patch_list
 
+def flow_patch_list_generator( patch_sizes_list, images):
+    """for each patch size convert flow images to patchlized image 
+
+    Args:
+        patch_sizes_list (list): different patch sizes
+        images (_type_): _description_
+
+    Returns:
+        list: patchlized image 
+    """
+    flow_patch_list = []
+    
+    for i in range(len(patch_sizes_list)):
+        flow_patch_list.append(patch_image(images,patch_sizes_list[i]))
+        
+    return flow_patch_list
 
 def evaluation_entry(fgim, gtim):
     """_summary_
@@ -84,65 +100,6 @@ def evaluation_entry(fgim, gtim):
     return TP, FP, TN, FN
 
 
-def randomize_patch_V1_on_all_channels(patch):
-    """numpy shuffle
-        shuffle on all channles values  + original patch
-        result bad
-    Args:
-        patch (_type_): _description_
-
-    Returns:
-        np array: randomized patch
-    """
-    
-    # patch shape = (channel, size, size)
-    channel, patch_height, patch_width = patch.shape
-    
-    # patch = np.transpose(patch,(1,0,2))
-    # rndImg2 = np.reshape(patch, (patch_height* patch_width ,channel))
-    patch_cp = patch.copy()
-    
-
-    # random generator
-    rng = np.random.default_rng()
-    rng.shuffle(patch, axis=1)
-    rng.shuffle(patch, axis=2)
-
-
-    return patch + patch_cp
-
-def randomize_patch_V0(patch):
-    """ randomize shuffle on all pixels indexs  
-        result good but slow
-    Args:
-        patch (image): 
-
-    Returns:
-        np array: randomized patch
-    """
-    # patch shape = (channel, size, size)
-    
-
-    
-    
-    channel, patch_height, patch_width = patch.shape
-    random_idx = np.random.randint(0, patch_width*patch_height, patch_width * patch_height)
-    random_patch = np.zeros(shape=(patch_height * patch_width, channel))
-    
-    for c in range(channel):
-     
-        random_patch_flatten = np.ndarray.flatten(patch[c])
-        random_patch_c = np.zeros(shape=(patch_height * patch_width, ))
-        
-
-        for i in range(len(random_idx)):
-            random_patch_c[i] = random_patch_flatten[random_idx[i]]
-            
-
-        random_patch[..., c] = random_patch_c
-    random_patch_reshape = np.reshape(random_patch, newshape=(patch_height
-                                                              ,patch_width, channel)).transpose(2, 0, 1)
-    return random_patch_reshape
 
 def np_randomize_patch(patch):
     """ randomize shuffle on all pixels indexs  
@@ -233,14 +190,61 @@ def image_resize(img, scale_percent):
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)
-
     # resize image
     resized = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
+    
     return resized
 
 
-"""define for show image,pyplot version, flatten image probelm
-"""
+def network_inputGenerate(val, batch_size,channel, select_pixels_size,flow_patch_lists, patch_sizes_list):
+    """_summary_
+        generate each pixel's patch
+        
+    Args:
+        val (_type_): _description_
+        flow_patch_lists (list): contain each patchlized flow
+        patch_size_lists  (list) : different patch sizes
+    """
+    
+    #pixel's flow_patch_list 
+    select_patch = flow_patch_lists[0][val * batch_size: (val + 1) * batch_size]
+    #pixel's flow_patch_list_large
+    select_patch_large = flow_patch_lists[1][val * batch_size: (val + 1) * batch_size]
+
+    # randomize the patch
+    np_random_patch = randomize_patch_list(select_patch)
+    np_random_patch_large = randomize_patch_list(select_patch_large)
+    
+
+
+    # select batch size patches to train
+    select_pixels = select_batch_size_patch(np_random_patch, patch_sizes_list[0], channel, batch_size,
+                                            select_pixels_size)
+    select_pixels_large = select_batch_size_patch(np_random_patch_large, patch_sizes_list[1], channel, batch_size,
+                                                select_pixels_size)
+
+    # select first L pixels
+    # shape of batch_size, channel, select_pixels_size, select_pixels_size
+    select_pixels_patch = np.reshape(select_pixels,
+                                    newshape=(
+                                    batch_size, select_pixels_size, select_pixels_size, channel)).transpose(0, 3, 1, 2)
+
+    select_pixels_large_patch = np.reshape(select_pixels_large,
+                                        newshape=(batch_size, select_pixels_size, select_pixels_size,
+                                                    channel)).transpose(0, 3, 1,
+                                                                2)
+
+    np_random_select_pixel_list = randomize_patch_list(select_pixels_patch)
+    np_random_select_pixel_list_large = randomize_patch_list(select_pixels_large_patch)
+
+    # stack two list in channels dim, (1000,15,15,6)
+    np_random_select_pixel = np.concatenate((np_random_select_pixel_list, np_random_select_pixel_list_large), axis=3)
+
+    # reshape
+    np_random_select_pixel = np_random_select_pixel.transpose(0, 3, 1, 2)
+    
+    return np_random_select_pixel
+    
 def show_img(img, flattened = False, ori_shape = (370, 1200)):
 
     if not flattened:
