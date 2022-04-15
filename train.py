@@ -67,7 +67,7 @@ if not os.path.exists("checkpoint"):
 
 for epoch in range(epochs):
     total_loss = 0
-    for i in range(len(train_sets)):
+    for i in range(0,len(train_sets), 2):
      
         flow_patch_lists = flow_patch_list_generator(patch_sizes_list, train_sets[i])
     
@@ -112,7 +112,7 @@ for epoch in range(epochs):
         current_fscore = 0
         total_fscore = 0
         with torch.no_grad():
-            for i in range(len(validate_sets)):
+            for i in range(0,len(validate_sets),2):
 
                 flow_patch_list = patch_image(validate_sets[i], patch_size)
                 flow_patch_list_large = patch_image(validate_sets[i], patch_size_larger)
