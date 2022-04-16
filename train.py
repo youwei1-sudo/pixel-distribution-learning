@@ -19,16 +19,22 @@ model_path = "./checkpoint/ckpt.pth"
 imgs = load_flow_images(root=data_root, mode="training")
 print(imgs.shape)
 
-train_sets = imgs[183: 186]
-validate_sets = imgs[183: 186]
+train_sets = imgs[183: 243]
+nums_train = len(train_sets)
+train_idx = np.arange(nums_train)
+np.random.shuffle(train_idx)
+train_sets_shuffled = np.take(train_sets, train_idx, axis=0)
+
+validate_sets = imgs[183: 243]
 
 #show_img(train_sets[0])
 print(train_sets.shape)
 
 masks = load_masks(root=data_root, mode="training")
 
-train_masks = masks[183: 186]
-validate_masks = masks[183: 186]
+train_masks = masks[183: 243]
+train_masks_shuffled = np.take(train_masks, train_idx, axis=0)
+validate_masks = masks[183: 243]
 
 # show_img(validate_masks[0])
 print(train_masks.shape)
@@ -38,7 +44,7 @@ _, row, column, channel = imgs.shape
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #print('Training on GPU: {}'.format(torch.cuda.get_device_name(0)))
 
-epochs = 10
+epochs = 50
 batch_size = 2000
 patch_size = 25
 patch_size_larger = 37
@@ -67,17 +73,21 @@ if not os.path.exists("checkpoint"):
 
 for epoch in range(epochs):
     total_loss = 0
-    for i in range(len(train_sets)):
+    for i in range(0, len(train_sets_shuffled), 2):
      
-        flow_patch_lists = flow_patch_list_generator(patch_sizes_list, train_sets[i])
+        flow_patch_lists = flow_patch_list_generator(patch_sizes_list, train_sets_shuffled[i])
     
-        mask_image = train_masks[i].reshape(row * column) / 255
+        mask_image = train_masks_shuffled[i].reshape(row * column) / 255
 
         # generate patch for each pixel in an image
         value = round(flow_patch_lists[0].shape[0] / batch_size + 0.5)
 
+        value_idx = np.arange(value)
+        np.random.shuffle(value_idx)
+
         # calculate how many batches to iterate
-        for val in range(value):
+        for val in value_idx:
+        # for val in range(value):
             
             # pixel corresponding mask value
             mask_patch = mask_image[val * batch_size: (val + 1) * batch_size]
@@ -106,13 +116,13 @@ for epoch in range(epochs):
         # print("value:", val, "patch loss:", loss)
     print("epoch:", epoch, " loss:", total_loss)
     # TODO: set validate condition
-    if epoch % 1 == 0:
+    if epoch % 2 == 0:
         pred_list = []
         mask_list = []
         current_fscore = 0
         total_fscore = 0
         with torch.no_grad():
-            for i in range(len(validate_sets)):
+            for i in range(0, len(validate_sets), 4):
 
                 flow_patch_list = patch_image(validate_sets[i], patch_size)
                 flow_patch_list_large = patch_image(validate_sets[i], patch_size_larger)
@@ -123,6 +133,7 @@ for epoch in range(epochs):
                 # generate patch for each pixel in an image
                 value = round(flow_patch_list.shape[0] / batch_size + 0.5)
                 # calculate how many batches to iterate
+
                 for val in range(value):
                     select_patch = flow_patch_list[val * batch_size: (val + 1) * batch_size]
                     select_patch_large = flow_patch_list_large[val * batch_size: (val + 1) * batch_size]
@@ -183,13 +194,13 @@ for epoch in range(epochs):
                 TP, FP, TN, FN = evaluation_entry(prefgim, mask_image)
                 pred_list = []
 
-                Re = TP / (TP + FN)
-                Pr = TP / (TP + FP)
-                Fm = (2 * Pr * Re) / (Pr + Re)
+                Re = TP / (TP + FN+ 0.001)
+                Pr = TP / (TP + FP+ 0.001)
+                Fm = (2 * Pr * Re) / (Pr + Re + 0.001)
                 total_fscore += Fm
                 print("validate img index", i, "Re:", Re, " Pr:", Pr, " Fm:", Fm)
 
-        current_fscore = total_fscore / len(validate_sets)
+        current_fscore = total_fscore / (len(validate_sets) // 4)
         print("epoch:", epoch, "avg Fm: ", current_fscore, "best fscore:", best_fscore)
         if best_fscore < current_fscore:
             best_fscore = current_fscore

@@ -113,9 +113,10 @@ def np_randomize_patch(patch):
     # patch shape = (channel, size, size)
     
     channel, patch_height, patch_width = patch.shape
-    random_idx = np.random.randint(0, patch_width*patch_height, patch_width * patch_height)
-    
-    
+    # random_idx = np.random.randint(0, patch_width*patch_height, patch_width * patch_height)
+    random_idx = np.arange(patch_width * patch_height)
+    np.random.shuffle(random_idx)
+
     random_patch = np.zeros(shape=(patch_height * patch_width, channel))
     
     for c in range(channel):
