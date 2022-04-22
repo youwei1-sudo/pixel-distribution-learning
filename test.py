@@ -3,9 +3,10 @@ import cv2
 from utils import *
 from dataloader import *
 from net import *
+from videoMakerUtils import *
 
-# data_root = "../KITTI_MOD_fixed"
-data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed/"
+data_root = "../KITTI_MOD_fixed"
+#data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed/"
 
 
 imgs = load_flow_images(root=data_root, mode="training")
@@ -20,11 +21,11 @@ select_pixels_size = 16
 
 _, row, column, channel = imgs.shape
 
-test_dir = os.path.join(os.getcwd(), "test_output_imgs_0421")
+test_dir = os.path.join(os.getcwd(), "test_output_imgs_0416")
 if not os.path.exists(test_dir):
     os.makedirs(test_dir)
 
-mask_dir = os.path.join(os.getcwd(), "mask_imgs_0421")
+mask_dir = os.path.join(os.getcwd(), "mask_imgs_0416")
 if not os.path.exists(mask_dir):
     os.makedirs(mask_dir)
 
@@ -35,7 +36,8 @@ def test():
 
     # print('Training on GPU: {}'.format(torch.cuda.get_device_name(0)))
     model = Net().to(device)
-    checkpoint = torch.load('./checkpoint_0416/ckpt.pth')
+    #checkpoint = torch.load('./checkpoint_0416/ckpt.pth')
+    checkpoint = torch.load('./checkpoint_0416/ckpt.pth', map_location=device)
     
     #CPU test
     # model = torch.load('./checkpoint_0417/ckpt_0.pth')
@@ -115,7 +117,8 @@ def test():
                 pred_list += list(batch_pred_labels)
             pred_image = np.asarray(pred_list)
             prefgim = pred_image.reshape(row, column).astype(np.uint8) * 255
-            cv2.imwrite(os.path.join(test_dir, "%d.png" % i), prefgim)
+            
+
 
             TP, FP, TN, FN = evaluation_entry(prefgim, mask_image)
             pred_list = []
@@ -125,6 +128,9 @@ def test():
             Fm = (2 * Pr * Re) / (Pr + Re + 0.001)
 
             print("validate img index", i, "Re:", Re, " Pr:", Pr, " Fm:", Fm)
+            
+            prefgim = my_put_text(prefgim,Fm)
+            cv2.imwrite(os.path.join(test_dir, "%d.png" % i), prefgim)
 
 if __name__ == '__main__':
     test()
