@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from torch import nn
 import numpy as np
 
+import utils
 from dataloader import *
 from utils import *
 from net import *
@@ -13,28 +14,29 @@ from net import *
 
 # Please change your root here
 #data_root = "../KITTI_MOD_fixed"
-data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
-model_path = "./checkpoint/ckpt.pth"
+data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed/"
+model_path = "checkpoint_0421"
 
 imgs = load_flow_images(root=data_root, mode="training")
 print(imgs.shape)
 
-train_sets = imgs[183: 243]
+train_sets = imgs[565: 925]
+
 nums_train = len(train_sets)
 train_idx = np.arange(nums_train)
 np.random.shuffle(train_idx)
 train_sets_shuffled = np.take(train_sets, train_idx, axis=0)
 
-validate_sets = imgs[183: 243]
+validate_sets = imgs[565: 925]
 
 #show_img(train_sets[0])
 print(train_sets.shape)
 
 masks = load_masks(root=data_root, mode="training")
 
-train_masks = masks[183: 243]
+train_masks = masks[565: 925]
 train_masks_shuffled = np.take(train_masks, train_idx, axis=0)
-validate_masks = masks[183: 243]
+validate_masks = masks[565: 925]
 
 # show_img(validate_masks[0])
 print(train_masks.shape)
@@ -43,8 +45,8 @@ _, row, column, channel = imgs.shape
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #print('Training on GPU: {}'.format(torch.cuda.get_device_name(0)))
-
-epochs = 50
+# device = torch.device("cpu")
+epochs = 40
 batch_size = 2000
 patch_size = 25
 patch_size_larger = 37
@@ -61,15 +63,18 @@ optimizer = torch.optim.Adam(net.parameters(), lr=1e-4)
 # optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 class_weights = torch.FloatTensor([0.3, 0.7]).to(device)
 criterion = torch.nn.NLLLoss(class_weights, reduction="mean").to(device)
+loss_list = []
+fscore_list = []
+epoch_list = [i for i in range(0, epochs, 2)]
 
 best_fscore = 0
 
-validate_dir = os.path.join(os.getcwd(), "validate_img")
+validate_dir = os.path.join(os.getcwd(), "validate_img_0421")
 if not os.path.exists(validate_dir):
     os.makedirs(validate_dir)
 
-if not os.path.exists("checkpoint"):
-    os.makedirs("checkpoint")
+if not os.path.exists(model_path):
+    os.makedirs(model_path)
 
 for epoch in range(epochs):
     total_loss = 0
@@ -118,15 +123,13 @@ for epoch in range(epochs):
     print("epoch:", epoch, " loss:", total_loss)
     # TODO: set validate condition
     if epoch % 2 == 0:
+        loss_list.append(total_loss)
         pred_list = []
         mask_list = []
         current_fscore = 0
         total_fscore = 0
         with torch.no_grad():
-
             for i in range(0, len(validate_sets), 4):
-
-
                 flow_patch_list = patch_image(validate_sets[i], patch_size)
                 flow_patch_list_large = patch_image(validate_sets[i], patch_size_larger)
 
@@ -197,15 +200,19 @@ for epoch in range(epochs):
                 TP, FP, TN, FN = evaluation_entry(prefgim, mask_image)
                 pred_list = []
 
-                Re = TP / (TP + FN+ 0.001)
-                Pr = TP / (TP + FP+ 0.001)
+                Re = TP / (TP + FN + 0.001)
+                Pr = TP / (TP + FP + 0.001)
                 Fm = (2 * Pr * Re) / (Pr + Re + 0.001)
                 total_fscore += Fm
                 print("validate img index", i, "Re:", Re, " Pr:", Pr, " Fm:", Fm)
 
         current_fscore = total_fscore / (len(validate_sets) // 4)
+        fscore_list.append(current_fscore)
         print("epoch:", epoch, "avg Fm: ", current_fscore, "best fscore:", best_fscore)
         if best_fscore < current_fscore:
             best_fscore = current_fscore
-            torch.save(net.to(device).state_dict(), model_path)
+            torch.save(net.state_dict(), os.path.join(model_path, "ckpt_%d.pth" % epoch))
             print("save the model in epoch %d" % epoch)
+
+utils.plot_graph(epoch_list, loss_list, "train_loss_0421.png")
+utils.plot_graph(epoch_list, fscore_list, "avg_fscore_0421.png")

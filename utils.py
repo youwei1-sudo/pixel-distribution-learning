@@ -265,7 +265,14 @@ def show_img(img, flattened = False, ori_shape = (370, 1200)):
             plt.pause(0.01)
         except Exception as exc:
             print("exc", exc)
-      
+
+def plot_graph(epoch_list, loss_list, fig_name):
+    plt.plot(epoch_list, loss_list)
+    plt.title("The Learning Curve of the Training Loss")
+    plt.xlabel("epoch")
+    plt.ylabel("loss")
+    plt.savefig(fig_name)
+    plt.clf()
 
 
 if __name__ == '__main__':
