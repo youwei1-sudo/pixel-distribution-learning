@@ -22,8 +22,8 @@ class Kitti_DataParser(object):
         :param data_root: root directory of Sintel dataset
         :return: directory for flow images
         """
-        image_dir = os.path.join(data_root, mode, "optflow_lr")
-        flow_img_path = sorted(glob.glob(os.path.join(image_dir, '*.jpg')))
+        image_dir = os.path.join(data_root, mode, "optflow")
+        flow_img_path = sorted(glob.glob(os.path.join(image_dir, '*.png')))
         return flow_img_path
 
     def get_label_path(self, data_root, mode="training"):
@@ -33,7 +33,7 @@ class Kitti_DataParser(object):
         :param mode: select from training, testing
         :return:
         """
-        image_dir = os.path.join(data_root, mode, "mask_lr")
+        image_dir = os.path.join(data_root, mode, "mask")
         label_path = sorted(glob.glob(os.path.join(image_dir, '*.png')))
         return label_path
 

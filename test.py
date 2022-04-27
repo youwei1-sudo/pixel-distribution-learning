@@ -5,16 +5,25 @@ from dataloader import *
 from net import *
 from videoMakerUtils import my_put_text
 import time
+import argparse
+from videoMakerUtils import *
 
-# data_root = "../KITTI_MOD_fixed"
-data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
+parser = argparse.ArgumentParser()
+parser.add_argument("--data_root", help="directory of training dataset")
+parser.add_argument("--model_path", help="directory of saved model")
+parser.add_argument("--test_image_dir", help="directory to save test image result")
+parser.add_argument("--gt_dir", help="directory to save ground truth images")
+args = parser.parse_args()
+
+
+data_root = args.data_root
 
 
 imgs = load_flow_images(root=data_root, mode="training")
-# imgs = imgs[182: 296]
+imgs = imgs[182: 296]
 
 masks = load_masks(root=data_root, mode="training")
-# masks = masks[182: 296]
+masks = masks[182: 296]
 batch_size = 2000
 patch_size = 25
 patch_size_larger = 37
@@ -22,11 +31,13 @@ select_pixels_size = 16
 
 _, row, column, channel = imgs.shape
 
-test_dir = os.path.join(os.getcwd(), "test_output_imgs_0424")
+test_dir = args.test_image_dir
+# test_dir = os.path.join(os.getcwd(), "test_output_imgs_0424")
 if not os.path.exists(test_dir):
     os.makedirs(test_dir)
 
-mask_dir = os.path.join(os.getcwd(), "mask_imgs_0424")
+# mask_dir = os.path.join(os.getcwd(), "mask_imgs_0424")
+mask_dir = args.gt_dir
 if not os.path.exists(mask_dir):
     os.makedirs(mask_dir)
 
@@ -37,7 +48,10 @@ def test():
 
     # print('Training on GPU: {}'.format(torch.cuda.get_device_name(0)))
     model = Net().to(device)
-    checkpoint = torch.load('./checkpoint_0423/ckpt_22.pth')
+
+    #checkpoint = torch.load('./checkpoint_0416/ckpt.pth')
+    checkpoint = torch.load(args.model_path, map_location=device)
+
     
     #CPU test
     # model = torch.load('./checkpoint_0417/ckpt_0.pth')
@@ -119,8 +133,8 @@ def test():
 
             pred_image = np.asarray(pred_list)
             prefgim = pred_image.reshape(row, column).astype(np.uint8) * 255
-            print("--- %s seconds ---" % (time.time() - start_time))
 
+            print("--- %s seconds ---" % (time.time() - start_time))
             TP, FP, TN, FN = evaluation_entry(prefgim, mask_image)
             pred_list = []
 
@@ -133,6 +147,7 @@ def test():
             cv2.imwrite(os.path.join(test_dir, "%d.png" % i), prefgim)
 
             print("validate img index", i, "Re:", Re, " Pr:", Pr, " Fm:", Fm)
+
 
 if __name__ == '__main__':
     test()

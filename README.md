@@ -1,7 +1,9 @@
 # pixel-distribution-learning
 Motion Segmentation is the task of identifying the independently moving objects (pixels) in the video and separating them from the background motion.
 
-Our work include use the state of the art : Pixel distribution model (random feature selection) to preprocess the extracted optical flow images. Then we will serve the extracted pixel distributions as inputs to our motion segmentation net. Finally, we will generate our own segementation binary masks against groud truths.
+Thanks for helping from Chenqiu, and Dr.Basu.
+
+Our work include use the state of the art : Pixel distribution model (random feature selection) to preprocess the extracted optical flow images. The optical flow is extracted use the state of the art model, RAFT provided by Teed and Deng. Then we will serve the extracted pixel distributions as inputs to our motion segmentation net. Finally, we will generate our own segementation binary masks against groud truths.
 
 Tested dataset:
 http://www.cvlibs.net/datasets/kitti/

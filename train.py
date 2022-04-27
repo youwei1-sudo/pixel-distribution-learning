@@ -4,21 +4,26 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 import numpy as np
-
+import argparse
 import utils
 from dataloader import *
 from utils import *
 from net import *
 
-# import matplotlib . pyplot as plt
+parser = argparse.ArgumentParser()
+parser.add_argument("--data_root", help="directory of training dataset")
+parser.add_argument("--checkpoint", help="directory of model checkpoint to save")
+args = parser.parse_args()
 
 # Please change your root here
-#data_root = "../KITTI_MOD_fixed"
-data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed/"
-model_path = "checkpoint_0423"
+
+# data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed/"
+# model_path = "checkpoint_0423"
+data_root = args.data_root
+model_path = args.checkpoint
+
 
 imgs = load_flow_images(root=data_root, mode="training")
-print(imgs.shape)
 
 train_sets = imgs
 
@@ -29,18 +34,12 @@ train_sets_shuffled = np.take(train_sets, train_idx, axis=0)
 
 validate_sets = imgs
 
-#show_img(train_sets[0])
-print(train_sets.shape)
-
 masks = load_masks(root=data_root, mode="training")
 
 train_masks = masks
 train_masks_shuffled = np.take(train_masks, train_idx, axis=0)
 
 validate_masks = masks
-
-# show_img(validate_masks[0])
-print(train_masks.shape)
 
 _, row, column, channel = imgs.shape
 
@@ -70,7 +69,7 @@ epoch_list = [i for i in range(0, epochs, 2)]
 
 best_fscore = 0
 
-validate_dir = os.path.join(os.getcwd(), "validate_img_0423")
+validate_dir = os.path.join(os.getcwd(), "validate_imgs")
 if not os.path.exists(validate_dir):
     os.makedirs(validate_dir)
 
