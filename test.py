@@ -3,16 +3,18 @@ import cv2
 from utils import *
 from dataloader import *
 from net import *
+from videoMakerUtils import my_put_text
+import time
 
 # data_root = "../KITTI_MOD_fixed"
-data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed/"
+data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
 
 
 imgs = load_flow_images(root=data_root, mode="training")
-imgs = imgs[182: 296]
+# imgs = imgs[182: 296]
 
 masks = load_masks(root=data_root, mode="training")
-masks = masks[182: 296]
+# masks = masks[182: 296]
 batch_size = 2000
 patch_size = 25
 patch_size_larger = 37
@@ -20,11 +22,11 @@ select_pixels_size = 16
 
 _, row, column, channel = imgs.shape
 
-test_dir = os.path.join(os.getcwd(), "test_output_imgs_0421")
+test_dir = os.path.join(os.getcwd(), "test_output_imgs_0424")
 if not os.path.exists(test_dir):
     os.makedirs(test_dir)
 
-mask_dir = os.path.join(os.getcwd(), "mask_imgs_0421")
+mask_dir = os.path.join(os.getcwd(), "mask_imgs_0424")
 if not os.path.exists(mask_dir):
     os.makedirs(mask_dir)
 
@@ -35,7 +37,7 @@ def test():
 
     # print('Training on GPU: {}'.format(torch.cuda.get_device_name(0)))
     model = Net().to(device)
-    checkpoint = torch.load('./checkpoint_0416/ckpt.pth')
+    checkpoint = torch.load('./checkpoint_0423/ckpt_22.pth')
     
     #CPU test
     # model = torch.load('./checkpoint_0417/ckpt_0.pth')
@@ -47,6 +49,7 @@ def test():
 
     with torch.no_grad():
         for i in range(1, len(imgs), 2):
+            start_time = time.time()
             flow_patch_list = patch_image(imgs[i], patch_size)
             flow_patch_list_large = patch_image(imgs[i], patch_size_larger)
 
@@ -113,9 +116,10 @@ def test():
                 batch_pred_labels = torch.argmax(output, axis=1)
                 batch_pred_labels = batch_pred_labels.cpu().numpy()
                 pred_list += list(batch_pred_labels)
+
             pred_image = np.asarray(pred_list)
             prefgim = pred_image.reshape(row, column).astype(np.uint8) * 255
-            cv2.imwrite(os.path.join(test_dir, "%d.png" % i), prefgim)
+            print("--- %s seconds ---" % (time.time() - start_time))
 
             TP, FP, TN, FN = evaluation_entry(prefgim, mask_image)
             pred_list = []
@@ -123,6 +127,10 @@ def test():
             Re = TP / (TP + FN + 0.001)
             Pr = TP / (TP + FP + 0.001)
             Fm = (2 * Pr * Re) / (Pr + Re + 0.001)
+
+            # cv2.putText(prefgim, "Fm%.2f" % Fm, (50, 50), font, 1, (0, 255, 255), 2, cv2.LINE_AA)
+            my_put_text(prefgim, Fm)
+            cv2.imwrite(os.path.join(test_dir, "%d.png" % i), prefgim)
 
             print("validate img index", i, "Re:", Re, " Pr:", Pr, " Fm:", Fm)
 

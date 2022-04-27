@@ -84,4 +84,6 @@ class Net(nn.Module):
 input = torch.randn(size=(1, 6, 16, 16))
 net = Net()
 out = net.forward(input)
-print(out.shape)
+
+pytorch_total_params = sum(p.numel() for p in net.parameters())
+print(pytorch_total_params)

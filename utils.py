@@ -34,9 +34,7 @@ def patch_image(image, patch_size):
                 img_center = np.zeros(shape=(patch_size, patch_size))
                 pixel_val = image[x][y][c]
                 img_center.fill(pixel_val)
-                # img_center[patch_m_size][patch_m_size] = 0
-                # make sure wont , subtract by itself; expierenmtal 
-                # img_center[patch_m_size][patch_m_size] = 0
+                
                 x_real = x + patch_m_size
                 y_real = y + patch_m_size
 
@@ -276,17 +274,15 @@ def plot_graph(epoch_list, loss_list, fig_name):
 
 
 if __name__ == '__main__':
-    img = cv2.imread("/Users/david/Desktop/cmput414/project/pixel-distribution-learning/2011_09_26_drive_0001_sync_0000000000.png")
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img = np.random.rand(3, 25, 25)*255
+    # img = cv2.imread("/Users/david/Desktop/cmput414/project/pixel-distribution-learning/2011_09_26_drive_0001_sync_0000000000.png")
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = np.random.rand(480, 854, 3)*255
     img = img.astype(np.uint8)
+
+    # random_patch = np_randomize_patch(img)
+    # #print(arr)
+    # print(img.shape)
+
     
-    
-    #arr = np.array([[[1,1],[3,3],[5,5]],[[6,6],[2,2],[4,4]]])
-    img = img[:,:2,:2]
-    print(img)
-    random_patch = np_randomize_patch(img)
-    #print(arr)
-    print(img.shape)
-    
-    #patch = patch_image(img, 5)
+    patch = patch_image(img, 37)
+    print(patch.shape)

@@ -15,28 +15,29 @@ from net import *
 # Please change your root here
 #data_root = "../KITTI_MOD_fixed"
 data_root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed/"
-model_path = "checkpoint_0421"
+model_path = "checkpoint_0423"
 
 imgs = load_flow_images(root=data_root, mode="training")
 print(imgs.shape)
 
-train_sets = imgs[565: 925]
+train_sets = imgs
 
 nums_train = len(train_sets)
 train_idx = np.arange(nums_train)
 np.random.shuffle(train_idx)
 train_sets_shuffled = np.take(train_sets, train_idx, axis=0)
 
-validate_sets = imgs[565: 925]
+validate_sets = imgs
 
 #show_img(train_sets[0])
 print(train_sets.shape)
 
 masks = load_masks(root=data_root, mode="training")
 
-train_masks = masks[565: 925]
+train_masks = masks
 train_masks_shuffled = np.take(train_masks, train_idx, axis=0)
-validate_masks = masks[565: 925]
+
+validate_masks = masks
 
 # show_img(validate_masks[0])
 print(train_masks.shape)
@@ -69,7 +70,7 @@ epoch_list = [i for i in range(0, epochs, 2)]
 
 best_fscore = 0
 
-validate_dir = os.path.join(os.getcwd(), "validate_img_0421")
+validate_dir = os.path.join(os.getcwd(), "validate_img_0423")
 if not os.path.exists(validate_dir):
     os.makedirs(validate_dir)
 
@@ -214,5 +215,5 @@ for epoch in range(epochs):
             torch.save(net.state_dict(), os.path.join(model_path, "ckpt_%d.pth" % epoch))
             print("save the model in epoch %d" % epoch)
 
-utils.plot_graph(epoch_list, loss_list, "train_loss_0421.png")
-utils.plot_graph(epoch_list, fscore_list, "avg_fscore_0421.png")
+utils.plot_graph(epoch_list, loss_list, "train_loss_0423.png")
+utils.plot_graph(epoch_list, fscore_list, "avg_fscore_0423.png")

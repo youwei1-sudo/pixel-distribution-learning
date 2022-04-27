@@ -63,10 +63,14 @@ def load_masks(root, mode):
 
 if __name__ == '__main__':
     root = "/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed"
-    imgs = load_flow_images(root=root, mode="training")
-    print(imgs.shape)
 
     masks = load_masks(root=root, mode="training")
     print(masks.shape)
+
+    imgs = load_flow_images(root=root, mode="training")
+    print(imgs.shape)
+
+    # masks = load_masks(root=root, mode="training")
+    # print(masks.shape)
 
 

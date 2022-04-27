@@ -22,8 +22,8 @@ class Kitti_DataParser(object):
         :param data_root: root directory of Sintel dataset
         :return: directory for flow images
         """
-        image_dir = os.path.join(data_root, mode, "optflow")
-        flow_img_path = sorted(glob.glob(os.path.join(image_dir, '*.png')))
+        image_dir = os.path.join(data_root, mode, "optflow_lr")
+        flow_img_path = sorted(glob.glob(os.path.join(image_dir, '*.jpg')))
         return flow_img_path
 
     def get_label_path(self, data_root, mode="training"):
@@ -33,16 +33,17 @@ class Kitti_DataParser(object):
         :param mode: select from training, testing
         :return:
         """
-        image_dir = os.path.join(data_root, mode, "mask")
+        image_dir = os.path.join(data_root, mode, "mask_lr")
         label_path = sorted(glob.glob(os.path.join(image_dir, '*.png')))
         return label_path
 
 
 if __name__ == '__main__':
+    pass
     # dataparser = SintelDataParser(data_root="/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/MPI-Sintel-complete",
     #                               dtype="clean")
     # print(len(dataparser.data_path_list))
     dataparser = Kitti_DataParser(data_root="/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/KITTI_MOD_fixed",
-                                  mode="training")
+                                 mode="training")
     # res = dataparser.get_flow_path(data_root="/media/zlu6/4caa1062-1ae5-4a99-9354-0800d8a1121d/data_semantics", mode="training")
-    print(dataparser.data_path_list)
+    # print(dataparser.data_path_list)
