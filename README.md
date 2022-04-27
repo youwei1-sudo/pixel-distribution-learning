@@ -26,9 +26,12 @@ python3 train.py --data_root=directory to the KITTI MoSeg --checkpoint=./ckpt
 
 ## Testing
 To test the model from a saved checkpoint:
+Example
 ```Shell
-python3 test.py --data_root=directory to the KITTI MoSeg --model_path=./checkpoint_0423/ckpt_22.pth  
---test_image_dir=the directory where you want to save tested image result --gt_dir=the directory to save the ground truth
+python3 test.py --data_root=directory  --model_path=./checkpoint_0423/ckpt_22.pth  --test_image_dir=the directory where you want to save tested image result --gt_dir=the directory to save the ground truth
 ```
+ 
+ 
+ 
 the pre-trained model is saved in /checkpoint_0423/ckpt_22.pth 
 
